@@ -1,7 +1,6 @@
 package com.abysl.ipfs
 
 import com.abysl.ipfs.network.endpoints.Ipfs
-import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -12,13 +11,6 @@ import org.junit.jupiter.api.Test
 internal class IpfsTest {
 
     val ipfs = Ipfs()
-
-    @Test
-    fun add(){
-        runBlocking {
-            ipfs.add("build/test".toPath().toFile())
-        }
-    }
 
     @Test
     fun statFile() {

@@ -1,8 +1,7 @@
 package com.abysl.ipfs.network.endpoints
 
-import com.abysl.ipfs.model.*
+import com.abysl.ipfs.model.IpfsLs
 import com.abysl.ipfs.network.config.IpfsClientConfig
-import com.abysl.ipfs.network.endpoints.Endpoint.Companion.client
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -10,28 +9,13 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.*
 import okio.ByteString.Companion.encodeUtf8
-import okio.Path
 import java.io.File
-import java.net.URLEncoder
 
 class Ipfs(override val config: IpfsClientConfig = IpfsClientConfig()) : Endpoint("") {
 
     val files = Files(this.config)
     val block = Block(this.config)
     val dag = Dag(this.config)
-
-    suspend fun add(file: File) {
-        val filesToAdd = file.walkTopDown().toList()
-        val response: HttpResponse = client.post("$base/add") {
-            body = MultiPartFormDataContent(
-                formData {
-                    filesToAdd.forEach { file ->
-                        append(getFormPart(file))
-                    }
-                }
-            )
-        }
-    }
 
     private fun getFormPart(file: File): FormPart<Any> {
         if (file.isDirectory) {
