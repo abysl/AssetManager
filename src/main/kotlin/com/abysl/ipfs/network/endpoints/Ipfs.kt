@@ -17,51 +17,6 @@ class Ipfs(override val config: IpfsClientConfig = IpfsClientConfig()) : Endpoin
     val block = Block(this.config)
     val dag = Dag(this.config)
 
-    private fun getFormPart(file: File): FormPart<Any> {
-        if (file.isDirectory) {
-            return FormPart(
-                "application/x-directory", "",
-                headers = Headers.build {
-                    append(
-                        "Content-Disposition",
-                        "form-data; name=\"${file.name.encodeUtf8()}\"; filename=\"${file.path.encodeUtf8()}\""
-                    )
-                    append("Content-Type", "application/x-directory")
-                }
-            )
-        } else {
-            return FormPart(
-                key = "application/octet-stream", file.readBytes(),
-                Headers.build {
-                    append("Abspath", "${file.absolutePath.encodeUtf8()}")
-                    append(
-                        "ContentDisposition",
-                        "form-data; name=\"${file.name.encodeUtf8()}\"; filename=\"${file.parentFile.name.encodeUtf8()}%2F${file.name.encodeUtf8()}\""
-                    )
-                    append("Content-Type", "application/octet-stream")
-                }
-            )
-        }
-    }
-
-    /*
-    *     private fun addFile(builder: MultipartBody.Builder, file: File, name: String, filename: String) {
-
-        val encodedFileName = URLEncoder.encode(filename, "UTF-8")
-        val headers = Headers.of("Content-Disposition", "file; filename=\"$encodedFileName\"", "Content-Transfer-Encoding", "binary")
-        if (file.isDirectory) {
-            // add directory
-            builder.addPart(headers, RequestBody.create(MediaType.parse("application/x-directory"), ""))
-            // add files and subdirectories
-            for (f: File in file.listFiles()) {
-                addFile(builder, f, f.name, filename + "/" + f.name)
-            }
-        } else {
-            builder.addPart(headers, RequestBody.create(MediaType.parse("application/octet-stream"), file))
-        }
-
-    }*/
-
     suspend fun get(
         path: String, output: String? = null, archive: Boolean? = null,
         compress: Boolean? = null, compressionLevel: Int? = null
