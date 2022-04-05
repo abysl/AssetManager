@@ -5,6 +5,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
 import kotlinx.serialization.json.Json
 
 abstract class Endpoint(endpointUrl: String) {
@@ -16,12 +17,18 @@ abstract class Endpoint(endpointUrl: String) {
             prettyPrint = true
             isLenient = true
             ignoreUnknownKeys = true
+
         }
 
         val client = HttpClient(CIO) {
             install(JsonFeature) {
                 serializer = KotlinxSerializer(jsonFormat)
             }
+            install(Logging) {
+                logger = Logger.DEFAULT
+                level = LogLevel.ALL
+            }
         }
+
     }
 }

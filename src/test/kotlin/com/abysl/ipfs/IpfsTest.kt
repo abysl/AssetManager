@@ -14,6 +14,13 @@ internal class IpfsTest {
     val ipfs = Ipfs()
 
     @Test
+    fun add(){
+        runBlocking {
+            ipfs.add("build/test".toPath().toFile())
+        }
+    }
+
+    @Test
     fun statFile() {
         runBlocking {
             val file = ipfs.files.stat("/")

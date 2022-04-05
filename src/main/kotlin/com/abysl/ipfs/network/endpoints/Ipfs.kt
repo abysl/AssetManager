@@ -2,17 +2,81 @@ package com.abysl.ipfs.network.endpoints
 
 import com.abysl.ipfs.model.*
 import com.abysl.ipfs.network.config.IpfsClientConfig
+import com.abysl.ipfs.network.endpoints.Endpoint.Companion.client
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.utils.io.*
+import okio.ByteString.Companion.encodeUtf8
+import okio.Path
 import java.io.File
+import java.net.URLEncoder
 
-class Ipfs(override val config: IpfsClientConfig = IpfsClientConfig()): Endpoint("") {
+class Ipfs(override val config: IpfsClientConfig = IpfsClientConfig()) : Endpoint("") {
 
     val files = Files(this.config)
     val block = Block(this.config)
     val dag = Dag(this.config)
+
+    suspend fun add(file: File) {
+        val filesToAdd = file.walkTopDown().toList()
+        val response: HttpResponse = client.post("$base/add") {
+            body = MultiPartFormDataContent(
+                formData {
+                    filesToAdd.forEach { file ->
+                        append(getFormPart(file))
+                    }
+                }
+            )
+        }
+    }
+
+    private fun getFormPart(file: File): FormPart<Any> {
+        if (file.isDirectory) {
+            return FormPart(
+                "application/x-directory", "",
+                headers = Headers.build {
+                    append(
+                        "Content-Disposition",
+                        "form-data; name=\"${file.name.encodeUtf8()}\"; filename=\"${file.path.encodeUtf8()}\""
+                    )
+                    append("Content-Type", "application/x-directory")
+                }
+            )
+        } else {
+            return FormPart(
+                key = "application/octet-stream", file.readBytes(),
+                Headers.build {
+                    append("Abspath", "${file.absolutePath.encodeUtf8()}")
+                    append(
+                        "ContentDisposition",
+                        "form-data; name=\"${file.name.encodeUtf8()}\"; filename=\"${file.parentFile.name.encodeUtf8()}%2F${file.name.encodeUtf8()}\""
+                    )
+                    append("Content-Type", "application/octet-stream")
+                }
+            )
+        }
+    }
+
+    /*
+    *     private fun addFile(builder: MultipartBody.Builder, file: File, name: String, filename: String) {
+
+        val encodedFileName = URLEncoder.encode(filename, "UTF-8")
+        val headers = Headers.of("Content-Disposition", "file; filename=\"$encodedFileName\"", "Content-Transfer-Encoding", "binary")
+        if (file.isDirectory) {
+            // add directory
+            builder.addPart(headers, RequestBody.create(MediaType.parse("application/x-directory"), ""))
+            // add files and subdirectories
+            for (f: File in file.listFiles()) {
+                addFile(builder, f, f.name, filename + "/" + f.name)
+            }
+        } else {
+            builder.addPart(headers, RequestBody.create(MediaType.parse("application/octet-stream"), file))
+        }
+
+    }*/
 
     suspend fun get(
         path: String, output: String? = null, archive: Boolean? = null,
