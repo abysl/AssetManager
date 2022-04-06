@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import com.abysl.assetmanager.components.Component
+import com.abysl.assetmanager.ui.components.Component
 
 class NavigationService {
 

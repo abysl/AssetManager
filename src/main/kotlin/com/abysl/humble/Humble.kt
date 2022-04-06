@@ -1,6 +1,5 @@
 package com.abysl.humble
 
-import com.abysl.humble.model.DownloadData
 import com.abysl.humble.model.DownloadStruct
 import com.abysl.humble.model.FakeJson
 import com.abysl.humble.model.SubProduct
@@ -23,18 +22,20 @@ class Humble {
             val name = it.jsonObject["human_name"]?.jsonPrimitive?.content ?: return@forEach
             val url = it.jsonObject["url"]?.jsonPrimitive?.content ?: return@forEach
             val icon = it.jsonObject["icon"]?.jsonPrimitive?.content ?: return@forEach
+            val creator = it.jsonObject["payee"]?.jsonObject?.get("human_name")?.jsonPrimitive?.content ?: return@forEach
             val downloads = parseDownloads(it.jsonObject["downloads"]?.jsonArray ?: return@forEach)
-            subproducts.add(SubProduct(name = name, url = url, icon = icon, downloads = downloads))
+            subproducts.add(SubProduct(name = name, url = url, iconUrl = icon, creator = creator, downloads = downloads))
         }
         return subproducts
     }
 
-    private fun parseDownloads(el: JsonArray): List<DownloadData> {
-        val downloads = mutableListOf<DownloadData>()
+    private fun parseDownloads(el: JsonArray): HashMap<String, List<DownloadStruct>> {
+        val downloads = hashMapOf<String, List<DownloadStruct>>()
         el.forEach {
-            val platform = it.jsonObject["platform"]?.jsonPrimitive?.content ?: return@forEach
-            val downloadStructs = parseDownloadStructs(it.jsonObject["download_struct"]?.jsonArray ?: return@forEach)
-            downloads.add(DownloadData(platform = platform, downloads = downloadStructs))
+            val platform: String = it.jsonObject["platform"]?.jsonPrimitive?.content ?: return@forEach
+            val downloadStructs: List<DownloadStruct> =
+                parseDownloadStructs(it.jsonObject["download_struct"]?.jsonArray ?: return@forEach)
+            downloads += platform to downloadStructs
         }
         return downloads
     }

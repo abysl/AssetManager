@@ -31,8 +31,8 @@ internal class IpfsTest {
     @Test
     fun getFile(){
         runBlocking {
-            val fileStore = "ipfs/".toPath().toFile().also {  it.mkdir() }
-            val file = "ipfs/get_test.zip".toPath().toFile().also { it.createNewFile()}
+            val fileStore = "build/test".toPath().toFile().also {  it.mkdirs() }
+            val file = fileStore.resolve("get_test.zip")
             val byteReader = ipfs.get("QmfUFCfDSUXnXpqWJc7UXkG9C5x4PfuSGD7LkPLfEutcL6")
             withContext(Dispatchers.IO){
                 while(byteReader.availableForRead > 0) {
@@ -47,8 +47,8 @@ internal class IpfsTest {
     @Test
     fun cat(){
         runBlocking {
-            val fileStore = "ipfs/".toPath().toFile().also {  it.mkdir() }
-            val file = "ipfs/cat_test.zip".toPath().toFile().also { it.createNewFile()}
+            val fileStore = "build/test".toPath().toFile().also {  it.mkdirs() }
+            val file = fileStore.resolve("cat_test.zip")
             val byteReader = ipfs.cat("QmfUFCfDSUXnXpqWJc7UXkG9C5x4PfuSGD7LkPLfEutcL6")
             withContext(Dispatchers.IO){
                 while(byteReader.availableForRead > 0) {

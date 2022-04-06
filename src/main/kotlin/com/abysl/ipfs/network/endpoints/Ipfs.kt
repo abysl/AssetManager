@@ -4,11 +4,8 @@ import com.abysl.ipfs.model.IpfsLs
 import com.abysl.ipfs.network.config.IpfsClientConfig
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
-import io.ktor.http.*
 import io.ktor.utils.io.*
-import okio.ByteString.Companion.encodeUtf8
 import java.io.File
 
 class Ipfs(override val config: IpfsClientConfig = IpfsClientConfig()) : Endpoint("") {

@@ -1,6 +1,6 @@
 package com.abysl.assetmanager.db
 
-abstract class Migration(val version :Int) {
+abstract class Migration() {
 
     abstract fun up()
 
