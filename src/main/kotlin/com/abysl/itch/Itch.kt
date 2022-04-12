@@ -1,6 +1,7 @@
 package com.abysl.itch
 
 import com.abysl.itch.model.ItchGame
+import com.abysl.itch.model.ItchGameKey
 import com.abysl.itch.model.ItchUpload
 import com.abysl.itch.model.ItchUser
 import io.ktor.client.*
@@ -14,9 +15,11 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
 import org.jsoup.Jsoup
 import java.io.File
+import java.util.stream.Collectors
 
 class Itch(val config: ItchClientConfig) {
     val jsonFormat = Json {
@@ -67,36 +70,52 @@ class Itch(val config: ItchClientConfig) {
         return Json.decodeFromJsonElement(json)
     }
 
-    suspend fun getKeys(): List<Pair<String, ItchGame>> {
+    suspend fun getAssets(): Map<ItchGameKey, ItchGame> {
         val response: HttpResponse = client.get("$base/my-owned-keys")
-        val games: List<Pair<String, ItchGame>> = jsonFormat.parseToJsonElement(response.bodyAsText())
-            .jsonObject["owned_keys"]!!.jsonArray
-            .map {
-                it.jsonObject["id"]!!.jsonPrimitive.content to
-                        jsonFormat.decodeFromJsonElement(it.jsonObject["game"]!!)
-            }
+        val games: Map<ItchGameKey, ItchGame> = jsonFormat
+            .parseToJsonElement(response.bodyAsText())
+            .jsonObject["owned_keys"]!!.jsonArray.map {
+            val game: ItchGame = jsonFormat.decodeFromJsonElement(it.jsonObject["game"]!!)
+            val key = it.jsonObject["id"]!!.jsonPrimitive.content
+            return@map ItchGameKey(game.id, key) to game
+        }.toMap()
         return games
     }
 
-    suspend fun getDownloadUrl(upload: ItchUpload, gameKey: String): String {
-        val uuid: String =
-            Json.parseToJsonElement(client.post("https://api.itch.io/games/${upload.gameId}/download-sessions") {
-                headers { append("Authorization", config.apiKey) }
-            }.bodyAsText()).jsonObject["uuid"]!!.jsonPrimitive.content
-
-        val download  =
-            client.get("https://api.itch.io/uploads/${upload.id}/download") {
-                parameter("api_key", config.apiKey)
-                parameter("download_key_id", gameKey)
-                parameter("uuid", uuid)
+    suspend fun getDownloadUrls(key: ItchGameKey): List<String> {
+        val uuid: String = getUuid(key.gameId)
+        val uploads = getUploads(key)
+        val urls = uploads.parallelStream().map { upload ->
+            runBlocking {
+                return@runBlocking getDownloadUrl(key.gameKey, upload, uuid)
             }
+        }.collect(Collectors.toUnmodifiableList())
+        return urls.toTypedArray().toList()
+    }
+
+    suspend fun getDownloadUrl(
+        key: String,
+        upload: ItchUpload,
+        uuid: String = runBlocking { getUuid(upload.gameId) }
+    ): String {
+        val download = client.get("https://api.itch.io/uploads/${upload.id}/download") {
+            parameter("api_key", config.apiKey)
+            parameter("download_key_id", key)
+            parameter("uuid", uuid)
+        }
         return download.headers["Location"].toString()
     }
 
-    suspend fun getUploads(downloadKey: String, game: ItchGame): List<ItchUpload> {
+    suspend fun getUuid(gameId: ULong): String {
+        return Json.parseToJsonElement(client.post("https://api.itch.io/games/$gameId/download-sessions") {
+            headers { append("Authorization", config.apiKey) }
+        }.bodyAsText()).jsonObject["uuid"]!!.jsonPrimitive.content
+    }
+
+    suspend fun getUploads(key: ItchGameKey): List<ItchUpload> {
         val uploads = jsonFormat.parseToJsonElement(
-            client.get("https://api.itch.io/games/${game.id}/uploads") {
-                parameter("download_key_id", downloadKey)
+            client.get("https://api.itch.io/games/${key.gameId}/uploads") {
+                parameter("download_key_id", key.gameKey)
                 headers { append("Authorization", config.apiKey) }
             }.bodyAsText()
         )

@@ -31,7 +31,7 @@ fun main() {
 
     application {
         val state = rememberWindowState()
-        MaterialTheme(colors = Theme.darkMaterial) {
+        MaterialTheme(colors = if (Prefs.darkMode) Theme.darkMaterial else Theme.lightMaterial) {
             Window(
                 title = "AbyslTCG",
                 onCloseRequest = ::exitApplication,

@@ -11,17 +11,17 @@ object PreferencesTable : Table() {
         return transaction { PreferencesTable.select { key eq pref }.firstOrNull() }?.get(value)
     }
 
-    operator fun set(pref: String, prefvalue: String) {
+    operator fun set(pref: String, newValue: String) {
         val oldValue = get(pref)
         transaction {
             if(oldValue == null) {
                 PreferencesTable.insert {
                     it[key] = pref
-                    it[value] = prefvalue
+                    it[value] = newValue
                 }
             }else {
-                PreferencesTable.update {
-                    it[value] = prefvalue
+                PreferencesTable.update({key eq pref}) {
+                    it[value] = newValue
                 }
             }
         }

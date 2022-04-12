@@ -1,10 +1,7 @@
 package com.abysl.ipfs
 
 import com.abysl.ipfs.network.endpoints.Ipfs
-import io.ktor.utils.io.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Test
 
@@ -31,33 +28,20 @@ internal class IpfsTest {
     @Test
     fun getFile(){
         runBlocking {
-            val fileStore = "build/test".toPath().toFile().also {  it.mkdirs() }
+            val fileStore = "build/test".toPath().toFile().also { it.mkdirs() }
             val file = fileStore.resolve("get_test.zip")
-            val byteReader = ipfs.get("QmfUFCfDSUXnXpqWJc7UXkG9C5x4PfuSGD7LkPLfEutcL6")
-            withContext(Dispatchers.IO){
-                while(byteReader.availableForRead > 0) {
-                    val buffer = ByteArray(byteReader.availableForRead)
-                    byteReader.readAvailable(buffer)
-                    file.writeBytes(buffer)
-                }
-            }
+            val bytes = ipfs.get("QmfUFCfDSUXnXpqWJc7UXkG9C5x4PfuSGD7LkPLfEutcL6")
+            file.writeBytes(bytes)
         }
     }
 
     @Test
     fun cat(){
         runBlocking {
-            val fileStore = "build/test".toPath().toFile().also {  it.mkdirs() }
+            val fileStore = "build/test".toPath().toFile().also { it.mkdirs() }
             val file = fileStore.resolve("cat_test.zip")
-            val byteReader = ipfs.cat("QmfUFCfDSUXnXpqWJc7UXkG9C5x4PfuSGD7LkPLfEutcL6")
-            withContext(Dispatchers.IO){
-                while(byteReader.availableForRead > 0) {
-                    val buffer = ByteArray(byteReader.availableForRead)
-                    byteReader.readAvailable(buffer)
-                    file.writeBytes(buffer)
-                }
-            }
-
+            val bytes = ipfs.cat("QmfUFCfDSUXnXpqWJc7UXkG9C5x4PfuSGD7LkPLfEutcL6")
+            file.writeBytes(bytes)
         }
     }
 

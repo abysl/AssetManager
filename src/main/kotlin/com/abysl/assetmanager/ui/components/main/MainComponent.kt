@@ -33,10 +33,7 @@ class MainComponent(val context: MainContext = MainContext()) : Component(), Koi
             Scaffold(
                 topBar = { TopAppBar { topBar.view() } },
             ) {
-                Row(
-                    modifier = Modifier.padding(15.dp),
-                    horizontalArrangement = Arrangement.spacedBy(15.dp)
-                ) {
+                Row {
                     if (topBar.context.menuPressed.value) {
                         sideBar.view()
                     }

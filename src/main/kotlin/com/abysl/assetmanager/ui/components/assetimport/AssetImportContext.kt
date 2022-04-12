@@ -5,5 +5,5 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 class AssetImportContext {
-    var selectedImportType by mutableStateOf(ImportTypes.LOCAL)
+    var selectedImportType by mutableStateOf(ImportTypes.values().first())
 }

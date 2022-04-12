@@ -5,8 +5,6 @@ import com.abysl.assetmanager.services.DBService
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
-import org.junit.jupiter.api.Assertions.*
-
 internal class ItchTest {
 
     init {
@@ -24,8 +22,7 @@ internal class ItchTest {
     @Test
     fun getKeys() {
         runBlocking {
-            println(itch.getKeys())
-            println(ItchClientConfig(apiKey = Prefs.itchApiKey ?: "").apiUrl())
+            assert(itch.getAssets().isNotEmpty())
         }
     }
 
@@ -38,6 +35,7 @@ internal class ItchTest {
 
     @Test
     fun login(){
+
     }
 
     @Test
@@ -49,9 +47,9 @@ internal class ItchTest {
             // step 4 extract file link
             // step 5 request file link
             // step 6 request file from cdn
-            val game = itch.getKeys().first()
-            val uploads = itch.getUploads(game.first, game.second)
-            val test = itch.getDownloadUrl(uploads.first(), game.first)
+            val assets = itch.getAssets()
+            val test = itch.getDownloadUrls(assets.keys.first())
+            println(test)
         }
     }
 }
