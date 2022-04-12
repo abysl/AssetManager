@@ -1,9 +1,6 @@
 package com.abysl.assetmanager.db
 
-import com.abysl.assetmanager.db.migrations.AssetCreator
-import com.abysl.assetmanager.db.migrations.AssetStoreSchema
-import com.abysl.assetmanager.db.migrations.InitialSchema
-import com.abysl.assetmanager.db.migrations.PreferencesMigration
+import com.abysl.assetmanager.db.migrations.*
 import com.abysl.assetmanager.db.tables.VersionTable
 import org.jetbrains.exposed.sql.exists
 import org.jetbrains.exposed.sql.insert
@@ -52,9 +49,8 @@ class MigrationService {
     }
 
     private fun registerMigrations() {
-        migrations[0] = InitialSchema()
-        migrations[1] = AssetStoreSchema()
-        migrations[2] = AssetCreator()
-        migrations[3] = PreferencesMigration()
+        migrations[0] = InitialMigration()
+        migrations[1] = AssetTableMigration()
+        migrations[2] = PreferencesMigration()
     }
 }

@@ -19,12 +19,20 @@ class Humble {
     private fun parseSubProducts(el: JsonArray): List<SubProduct>{
         val subproducts = mutableListOf<SubProduct>()
         el.forEach {
-            val name = it.jsonObject["human_name"]?.jsonPrimitive?.content ?: return@forEach
-            val url = it.jsonObject["url"]?.jsonPrimitive?.content ?: return@forEach
-            val icon = it.jsonObject["icon"]?.jsonPrimitive?.content ?: return@forEach
-            val creator = it.jsonObject["payee"]?.jsonObject?.get("human_name")?.jsonPrimitive?.content ?: return@forEach
-            val downloads = parseDownloads(it.jsonObject["downloads"]?.jsonArray ?: return@forEach)
-            subproducts.add(SubProduct(name = name, url = url, iconUrl = icon, creator = creator, downloads = downloads))
+            val name = it.jsonObject["human_name"]!!.jsonPrimitive.content
+            val url = it.jsonObject["url"]!!.jsonPrimitive.content
+            val icon = it.jsonObject["icon"]!!.jsonPrimitive.content
+            val creator = it.jsonObject["payee"]!!.jsonObject["human_name"]!!.jsonPrimitive.content
+            val downloads = parseDownloads(it.jsonObject["downloads"]!!.jsonArray)
+            subproducts.add(
+                SubProduct(
+                    name = name,
+                    url = url,
+                    iconUrl = icon,
+                    creator = creator,
+                    downloads = downloads
+                )
+            )
         }
         return subproducts
     }
@@ -32,9 +40,9 @@ class Humble {
     private fun parseDownloads(el: JsonArray): HashMap<String, List<DownloadStruct>> {
         val downloads = hashMapOf<String, List<DownloadStruct>>()
         el.forEach {
-            val platform: String = it.jsonObject["platform"]?.jsonPrimitive?.content ?: return@forEach
+            val platform: String = it.jsonObject["platform"]!!.jsonPrimitive.content
             val downloadStructs: List<DownloadStruct> =
-                parseDownloadStructs(it.jsonObject["download_struct"]?.jsonArray ?: return@forEach)
+                parseDownloadStructs(it.jsonObject["download_struct"]!!.jsonArray)
             downloads += platform to downloadStructs
         }
         return downloads
@@ -43,13 +51,13 @@ class Humble {
     private fun parseDownloadStructs(el: JsonArray): List<DownloadStruct> {
         val downloadStructs = mutableListOf<DownloadStruct>()
         el.forEach {
-            val name = it.jsonObject["name"]?.jsonPrimitive?.content ?: return@forEach
-            val md5 = it.jsonObject["md5"]?.jsonPrimitive?.content ?: return@forEach
-            val sha1 = it.jsonObject["sha1"]?.jsonPrimitive?.content ?: return@forEach
-            val web = it.jsonObject["url"]?.jsonObject?.get("web")?.jsonPrimitive?.content ?: return@forEach
-            val torrent = it.jsonObject["url"]?.jsonObject?.get("bittorrent")?.jsonPrimitive?.content ?: return@forEach
-            val humanSize = it.jsonObject["human_size"]?.jsonPrimitive?.content ?: return@forEach
-            val fileSize = it.jsonObject["file_size"]?.jsonPrimitive?.long ?: return@forEach
+            val name = it.jsonObject["name"]!!.jsonPrimitive.content
+            val md5 = it.jsonObject["md5"]!!.jsonPrimitive.content
+            val sha1 = it.jsonObject["sha1"]?.jsonPrimitive?.content ?: ""
+            val web = it.jsonObject["url"]!!.jsonObject["web"]!!.jsonPrimitive.content
+            val torrent = it.jsonObject["url"]!!.jsonObject["bittorrent"]!!.jsonPrimitive.content
+            val humanSize = it.jsonObject["human_size"]!!.jsonPrimitive.content
+            val fileSize = it.jsonObject["file_size"]!!.jsonPrimitive.long
             downloadStructs.add(
                 DownloadStruct(
                     name = name,

@@ -11,6 +11,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.*
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -18,6 +19,7 @@ import org.jetbrains.skia.Image
 import java.io.File
 
 class ImageService(val cacheLocation: File) {
+    private val logger = KotlinLogging.logger {}
     val client = HttpClient(CIO)
 
     val defaultImage by lazy {
@@ -29,6 +31,7 @@ class ImageService(val cacheLocation: File) {
         delay: Long = 1000, maxAttempts: Int = 2
     ): MutableState<ImageBitmap> {
         val image = mutableStateOf(defaultImage)
+        if (url.isEmpty()) return image
         CoroutineScope(Dispatchers.IO).launch {
             var attempt = 0
             while (attempt++ < maxAttempts) {
@@ -49,8 +52,12 @@ class ImageService(val cacheLocation: File) {
     fun cache(url: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val id = transaction { ImageTable.insertAndGetId { it[ImageTable.url] = url } }
-            val response: HttpResponse = client.get(url)
-            cacheLocation.resolve("$id.png").also { it.createNewFile() }.writeBytes(response.readBytes())
+            try {
+                val response: HttpResponse = client.get(url)
+                cacheLocation.resolve("$id.png").also { it.createNewFile() }.writeBytes(response.readBytes())
+            } catch (e: Exception) {
+                logger.warn("Failed to load image $url")
+            }
         }
     }
 

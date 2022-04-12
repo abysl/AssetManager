@@ -7,10 +7,10 @@ import io.ktor.utils.io.*
 
 class Block(override val config: IpfsClientConfig): Endpoint("/block") {
 
-    suspend fun getBlock(hash: String): ByteReadChannel {
+    suspend fun getBlock(hash: String): ByteArray {
         val response: HttpResponse = client.get("$base/get") {
             parameter("arg", hash)
         }
-        return response.content
+        return response.readBytes()
     }
 }

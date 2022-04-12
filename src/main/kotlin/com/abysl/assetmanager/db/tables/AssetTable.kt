@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.ResultRow
 
 object AssetTable: IntIdTable() {
     val name = varchar("name", 256);
+    val sourcePlatform = varchar("source_platform", 16)
     val creator = varchar("creator", 256).default("Unknown")
     val iconUrl  = varchar("iconUrl", 256)
     val sourceUrl = varchar("sourceUrl", 256);
@@ -16,6 +17,7 @@ object AssetTable: IntIdTable() {
     fun fromRow(row: ResultRow): Asset  =
         Asset(
             name = row[name],
+            sourcePlatform = row[sourcePlatform],
             creator = row[creator],
             iconUrl = row[iconUrl],
             sourceUrl = row[sourceUrl],

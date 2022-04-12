@@ -12,7 +12,7 @@ class Dag(override val config: IpfsClientConfig): Endpoint("/dag") {
         val response: HttpResponse = client.post("$base/get") {
             parameter("arg", hash)
         }
-        val jsonString = response.content.readUTF8Line() ?: return IpfsDag()
+        val jsonString = response.bodyAsText()
         return jsonFormat.decodeFromString(jsonString)
     }
 }

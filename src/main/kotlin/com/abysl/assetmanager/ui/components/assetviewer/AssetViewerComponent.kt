@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.abysl.assetmanager.model.Asset
 import com.abysl.assetmanager.services.ImageService
 import com.abysl.assetmanager.ui.components.Component
+import com.abysl.assetmanager.ui.util.Theme
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -34,7 +35,7 @@ class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext(
 
     @Composable
     fun assetList(assets: List<Asset>) {
-        Box(modifier = Modifier.background(Color.Cyan)) {
+        Box() {
             val state = rememberLazyListState()
             LazyColumn(
                 state = state,

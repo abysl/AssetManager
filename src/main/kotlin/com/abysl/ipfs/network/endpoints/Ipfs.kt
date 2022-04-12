@@ -5,7 +5,6 @@ import com.abysl.ipfs.network.config.IpfsClientConfig
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.utils.io.*
 import java.io.File
 
 class Ipfs(override val config: IpfsClientConfig = IpfsClientConfig()) : Endpoint("") {
@@ -17,7 +16,7 @@ class Ipfs(override val config: IpfsClientConfig = IpfsClientConfig()) : Endpoin
     suspend fun get(
         path: String, output: String? = null, archive: Boolean? = null,
         compress: Boolean? = null, compressionLevel: Int? = null
-    ): ByteReadChannel {
+    ): ByteArray {
         val response: HttpResponse = client.post("$base/get") {
             parameter("arg", path)
             parameter("output", output)
@@ -25,16 +24,16 @@ class Ipfs(override val config: IpfsClientConfig = IpfsClientConfig()) : Endpoin
             parameter("compress", compress)
             parameter("compression-level", compressionLevel)
         }
-        return response.content
+        return response.readBytes()
     }
 
     suspend fun cat(
         path: String
-    ): ByteReadChannel {
+    ): ByteArray {
         val response: HttpResponse = client.post("$base/cat") {
             parameter("arg", path)
         }
-        return response.content
+        return response.readBytes()
     }
 
     suspend fun ls(
@@ -51,17 +50,12 @@ class Ipfs(override val config: IpfsClientConfig = IpfsClientConfig()) : Endpoin
             parameter("size", size)
             parameter("stream", stream)
         }
-        return response.receive()
+        return response.body()
     }
 
     suspend fun downloadFile(downloadLocation: File, fileHash: String, overwrite: Boolean = false) {
         if (downloadLocation.exists() && !overwrite) return
         downloadLocation.parentFile.mkdirs()
-        val byteReader = cat(fileHash) ?: return
-        while (byteReader.availableForRead > 0) {
-            val buffer = ByteArray(byteReader.availableForRead)
-            byteReader.readAvailable(buffer)
-            downloadLocation.writeBytes(buffer)
-        }
+        downloadLocation.writeBytes(cat(fileHash))
     }
 }

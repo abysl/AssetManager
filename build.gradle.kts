@@ -21,17 +21,19 @@ repositories {
 val exposedVersion: String by project
 val okioVersion: String by project
 val koinVersion: String by project
+val ktorVersion: String by project
 
 dependencies {
     testImplementation(kotlin("test"))
     implementation(compose.desktop.currentOs)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
-    implementation("io.ktor:ktor-client-core:1.6.8")
-    implementation("io.ktor:ktor-client-cio:1.6.8")
-    implementation("io.ktor:ktor-client-apache:1.6.8")
-    implementation("io.ktor:ktor-client-serialization:1.6.8")
-    implementation("io.ktor:ktor-client-logging:1.6.8")
-    implementation("io.ktor:ktor-client-okhttp:1.6.8")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
     implementation("org.jsoup:jsoup:1.14.3")
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("org.xerial:sqlite-jdbc:3.36.0.3")
@@ -40,6 +42,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("com.squareup.okio:okio:$okioVersion")
+    implementation("io.github.microutils:kotlin-logging:2.1.21")
 
 }
 

@@ -3,9 +3,9 @@ package com.abysl.ipfs.network.endpoints
 import com.abysl.ipfs.network.config.IpfsClientConfig
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
 abstract class Endpoint(endpointUrl: String) {
@@ -21,8 +21,8 @@ abstract class Endpoint(endpointUrl: String) {
         }
 
         val client = HttpClient(CIO) {
-            install(JsonFeature) {
-                serializer = KotlinxSerializer(jsonFormat)
+            install(ContentNegotiation) {
+                json(jsonFormat)
             }
             install(Logging) {
                 logger = Logger.DEFAULT

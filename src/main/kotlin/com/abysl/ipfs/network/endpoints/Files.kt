@@ -17,7 +17,7 @@ class Files(override val config: IpfsClientConfig): Endpoint("/files") {
         val response: HttpResponse = client.post("$base/stat") {
             parameter("arg", ipfsPath)
         }
-        return response.receive()
+        return response.body()
     }
 
     suspend fun read(path: String, offset: ULong? = null, count: ULong? = null): ByteReadChannel {
@@ -27,7 +27,7 @@ class Files(override val config: IpfsClientConfig): Endpoint("/files") {
             parameter("offset", offset)
             parameter("count", count)
         }
-        return response.content
+        return response.body()
     }
 
     suspend fun writeFile(

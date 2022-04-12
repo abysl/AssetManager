@@ -5,6 +5,7 @@ import com.abysl.assetmanager.db.tables.AssetTable
 import com.abysl.assetmanager.db.tables.AssetTable.downloads
 import com.abysl.assetmanager.db.tables.AssetTable.iconUrl
 import com.abysl.assetmanager.db.tables.AssetTable.name
+import com.abysl.assetmanager.db.tables.AssetTable.sourcePlatform
 import com.abysl.assetmanager.db.tables.AssetTable.sourceUrl
 import com.abysl.assetmanager.db.tables.ImageTable
 import com.abysl.assetmanager.model.Asset
@@ -13,10 +14,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class AssetStoreSchema: Migration() {
+class AssetTableMigration: Migration() {
     override fun up() {
         transaction {
             SchemaUtils.create (AssetTable)
@@ -26,6 +26,7 @@ class AssetStoreSchema: Migration() {
                 val assets = Humble().getProducts().map {
                     Asset(
                         name = it.name,
+                        sourcePlatform = "humble",
                         creator = it.creator,
                         iconUrl = it.iconUrl,
                         sourceUrl = it.url,
@@ -33,6 +34,7 @@ class AssetStoreSchema: Migration() {
                 ) }
                 AssetTable.batchInsert(assets) { asset ->
                     this[name] = asset.name
+                    this[sourcePlatform] = asset.sourcePlatform
                     this[iconUrl] = asset.iconUrl
                     this[sourceUrl] = asset.sourceUrl
                     this[downloads] = Json.encodeToString(asset.downloads)

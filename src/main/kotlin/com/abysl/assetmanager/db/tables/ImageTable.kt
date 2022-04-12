@@ -5,7 +5,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ResultRow
 
 object ImageTable: IntIdTable() {
-    val url = varchar("name", 256);
+    val url = varchar("name", 256)
 
     fun fromRow(row: ResultRow): CachedImage =
         CachedImage(

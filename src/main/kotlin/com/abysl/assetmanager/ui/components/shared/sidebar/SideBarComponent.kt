@@ -1,51 +1,40 @@
-package com.abysl.assetmanager.ui.components.shared.navigationbar
+package com.abysl.assetmanager.ui.components.shared.sidebar
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.abysl.assetmanager.ui.components.Component
 import com.abysl.assetmanager.services.NavigationService
+import com.abysl.assetmanager.ui.components.Component
+import com.abysl.assetmanager.ui.components.assetimport.AssetImportComponent
 import com.abysl.assetmanager.ui.components.assetviewer.AssetViewerComponent
-import com.abysl.assetmanager.ui.components.assetviewer.AssetViewerContext
+import com.abysl.assetmanager.ui.components.shared.settings.SettingsComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 
-class NavigationBar: Component(), KoinComponent {
+class SideBarComponent: Component(), KoinComponent {
 
     private val navigationService by inject<NavigationService>()
 
     @Preview
     @Composable
     override fun view() {
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Cyan)
+        Column(
+            modifier = Modifier.fillMaxWidth(0.2f)
         ) {
-            NavigationButton("Backward"){
-                navigationService.back()
-            }
-
-            NavigationButton("Assets"){
+            NavigationButton("Assets") {
                 navigationService.navigate(AssetViewerComponent())
             }
-
-            NavigationButton("Assets"){
-                navigationService.navigate(AssetViewerComponent())
+            NavigationButton("Settings") {
+                navigationService.navigate(SettingsComponent())
             }
-
-            NavigationButton("Forward"){
-                navigationService.forward()
+            NavigationButton("Import Assets") {
+                navigationService.navigate(AssetImportComponent())
             }
-
         }
     }
 
@@ -54,8 +43,7 @@ class NavigationBar: Component(), KoinComponent {
         fun NavigationButton(text: String, onClick: () -> Unit){
             Button(
                 onClick = onClick,
-                modifier = Modifier
-                    .requiredWidth(125.dp)
+                modifier = Modifier.fillMaxWidth()
             ){
                 Text(text)
             }

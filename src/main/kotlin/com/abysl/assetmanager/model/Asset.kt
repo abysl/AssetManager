@@ -6,6 +6,7 @@ import com.abysl.humble.model.DownloadStruct
 @kotlinx.serialization.Serializable
 data class Asset (
     val name: String,
+    val sourcePlatform: String,
     val creator: String,
     val iconUrl: String,
     val sourceUrl: String,
