@@ -9,5 +9,5 @@ data class ItchUpload(
     val id: ULong,
     val type: String,
     @SerialName("game_id") val gameId: ULong,
-    @SerialName("md5_hash") val md5: String,
+    @SerialName("md5_hash") val md5: String? = null,
 )

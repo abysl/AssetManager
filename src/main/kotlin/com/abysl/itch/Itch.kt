@@ -1,7 +1,7 @@
 package com.abysl.itch
 
+import com.abysl.assetmanager.Prefs
 import com.abysl.itch.model.ItchGame
-import com.abysl.itch.model.ItchGameKey
 import com.abysl.itch.model.ItchUpload
 import com.abysl.itch.model.ItchUser
 import io.ktor.client.*
@@ -22,6 +22,8 @@ import java.io.File
 import java.util.stream.Collectors
 
 class Itch(val config: ItchClientConfig) {
+    constructor(apiKey: String): this(ItchClientConfig(apiKey))
+
     val jsonFormat = Json {
         prettyPrint = true
         isLenient = true
@@ -67,30 +69,27 @@ class Itch(val config: ItchClientConfig) {
             parameter("page", page)
         }
         val json = jsonFormat.parseToJsonElement(response.bodyAsText()).jsonObject["user"]!!.jsonObject
-        return Json.decodeFromJsonElement(json)
+        return Prefs.jsonFormat.decodeFromJsonElement(json)
     }
 
-    suspend fun getAssets(): Map<ItchGameKey, ItchGame> {
+    suspend fun getAssets(): List<ItchGame> {
         val response: HttpResponse = client.get("$base/my-owned-keys")
-        val games: Map<ItchGameKey, ItchGame> = jsonFormat
-            .parseToJsonElement(response.bodyAsText())
-            .jsonObject["owned_keys"]!!.jsonArray.map {
+        val gamesJson: List<JsonElement> =
+            jsonFormat.parseToJsonElement(response.bodyAsText()).jsonObject["owned_keys"]!!.jsonArray
+        val games = gamesJson.map {
             val game: ItchGame = jsonFormat.decodeFromJsonElement(it.jsonObject["game"]!!)
             val key = it.jsonObject["id"]!!.jsonPrimitive.content
-            return@map ItchGameKey(game.id, key) to game
-        }.toMap()
+            return@map game.copy(key = key)
+        }
         return games
     }
 
-    suspend fun getDownloadUrls(key: ItchGameKey): List<String> {
-        val uuid: String = getUuid(key.gameId)
-        val uploads = getUploads(key)
-        val urls = uploads.parallelStream().map { upload ->
-            runBlocking {
-                return@runBlocking getDownloadUrl(key.gameKey, upload, uuid)
-            }
-        }.collect(Collectors.toUnmodifiableList())
-        return urls.toTypedArray().toList()
+    suspend fun getDownloadUrls(game: ItchGame): Map<ItchUpload, String> {
+        val uuid: String = getUuid(game.id)
+        val uploads = getUploads(game)
+        return uploads.map { upload ->
+            upload to getDownloadUrl(game.key, upload, uuid)
+        }.toMap()
     }
 
     suspend fun getDownloadUrl(
@@ -112,14 +111,14 @@ class Itch(val config: ItchClientConfig) {
         }.bodyAsText()).jsonObject["uuid"]!!.jsonPrimitive.content
     }
 
-    suspend fun getUploads(key: ItchGameKey): List<ItchUpload> {
+    suspend fun getUploads(game: ItchGame): List<ItchUpload> {
         val uploads = jsonFormat.parseToJsonElement(
-            client.get("https://api.itch.io/games/${key.gameId}/uploads") {
-                parameter("download_key_id", key.gameKey)
+            client.get("https://api.itch.io/games/${game.id}/uploads") {
+                parameter("download_key_id", game.key)
                 headers { append("Authorization", config.apiKey) }
             }.bodyAsText()
         )
-        return uploads.jsonObject["uploads"]!!.jsonArray.map { jsonFormat.decodeFromJsonElement(it) }
+        return uploads.jsonObject["uploads"]?.jsonArray?.map { jsonFormat.decodeFromJsonElement(it) } ?: emptyList()
     }
 
     suspend fun downloadFile(url: String, downloadLocation: File, overwrite: Boolean = false) {

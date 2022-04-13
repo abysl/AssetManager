@@ -5,6 +5,7 @@ import kotlinx.serialization.SerialName
 @kotlinx.serialization.Serializable
 data class ItchGame(
     val id: ULong,
+    val key: String = "",
     val url: String,
     val title: String,
     val classification: String,

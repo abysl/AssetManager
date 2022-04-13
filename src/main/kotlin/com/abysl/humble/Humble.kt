@@ -1,23 +1,20 @@
 package com.abysl.humble
 
 import com.abysl.humble.model.DownloadStruct
-import com.abysl.humble.model.FakeJson
-import com.abysl.humble.model.SubProduct
+import com.abysl.humble.model.HumbleProduct
 import kotlinx.serialization.json.*
 
 class Humble {
 
-    fun getProducts(): List<SubProduct> = deserializeJson(Json.parseToJsonElement(FakeJson.response))
-
-    fun deserializeJson(json: JsonElement): List<SubProduct> {
+    fun deserializeJson(json: JsonElement): List<HumbleProduct> {
         return json.jsonObject.keys.fold(emptyList()) { acc, s ->
             val subproductArray = json.jsonObject[s]?.jsonObject?.get("subproducts")?.jsonArray ?: return@fold acc
             return@fold acc + parseSubProducts(subproductArray)
         }
     }
 
-    private fun parseSubProducts(el: JsonArray): List<SubProduct>{
-        val subproducts = mutableListOf<SubProduct>()
+    private fun parseSubProducts(el: JsonArray): List<HumbleProduct> {
+        val subproducts = mutableListOf<HumbleProduct>()
         el.forEach {
             val name = it.jsonObject["human_name"]!!.jsonPrimitive.content
             val url = it.jsonObject["url"]!!.jsonPrimitive.content
@@ -25,7 +22,7 @@ class Humble {
             val creator = it.jsonObject["payee"]!!.jsonObject["human_name"]!!.jsonPrimitive.content
             val downloads = parseDownloads(it.jsonObject["downloads"]!!.jsonArray)
             subproducts.add(
-                SubProduct(
+                HumbleProduct(
                     name = name,
                     url = url,
                     iconUrl = icon,
@@ -37,13 +34,12 @@ class Humble {
         return subproducts
     }
 
-    private fun parseDownloads(el: JsonArray): HashMap<String, List<DownloadStruct>> {
-        val downloads = hashMapOf<String, List<DownloadStruct>>()
+    private fun parseDownloads(el: JsonArray): List<DownloadStruct> {
+        val downloads = mutableListOf<DownloadStruct>()
         el.forEach {
-            val platform: String = it.jsonObject["platform"]!!.jsonPrimitive.content
             val downloadStructs: List<DownloadStruct> =
                 parseDownloadStructs(it.jsonObject["download_struct"]!!.jsonArray)
-            downloads += platform to downloadStructs
+            downloads.addAll(downloadStructs)
         }
         return downloads
     }

@@ -60,12 +60,10 @@ class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext(
 
     @Composable
     fun assetCard(asset: Asset) {
-        val scope = rememberCoroutineScope()
-        val image: MutableState<ImageBitmap> = remember { images[asset.iconUrl, scope] }
         Row(modifier = Modifier.padding(10.dp)
         ) {
             Image(
-                painter = BitmapPainter(image.value),
+                painter = BitmapPainter(asset.getIcon()),
                 contentDescription = asset.name,
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier.fillMaxSize(0.1f),

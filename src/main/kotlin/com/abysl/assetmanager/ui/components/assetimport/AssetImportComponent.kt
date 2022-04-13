@@ -18,24 +18,27 @@ class AssetImportComponent(val ctx: AssetImportContext = AssetImportContext()) :
 
     @Composable
     override fun view() {
+        val filesLeft by ctx.downloadService.filesLeft.collectAsState(0)
         Column(verticalArrangement = Arrangement.spacedBy(15.dp), modifier = Modifier.padding(15.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(15.dp), verticalAlignment = Alignment.CenterVertically) {
                 importSelector()
+                Text("$filesLeft")
                 when (ctx.selectedImportType) {
-                    ImportTypes.HUMBLE -> LinkText(
+                    SourcePlatform.HUMBLE -> LinkText(
                         "Humble Json Data - Click Here For Tutorial",
                         "https://youtu.be/BojZ0AIBfc8"
                     )
-                    ImportTypes.ITCH -> LinkText(
+                    SourcePlatform.ITCH -> LinkText(
                         "Itch Api Key - Click here to get one",
                         "https://itch.io/user/settings/api-keys"
                     )
+                    else -> {}
                 }
             }
             when (ctx.selectedImportType) {
-                ImportTypes.ITCH -> itchImportForm()
-                ImportTypes.HUMBLE -> humbleImportForm()
-                ImportTypes.LOCAL -> localImportForm()
+                SourcePlatform.ITCH -> itchImportForm()
+                SourcePlatform.HUMBLE -> humbleImportForm()
+                SourcePlatform.LOCAL -> localImportForm()
             }
         }
     }
@@ -43,7 +46,7 @@ class AssetImportComponent(val ctx: AssetImportContext = AssetImportContext()) :
     @Composable
     fun importSelector() {
         DropDownComponent(
-            items = ImportTypes.values().asIterable(),
+            items = SourcePlatform.values().asIterable(),
             onItemSelect = { ctx.selectedImportType = it },
             fieldSize = FIELD_SIZE
         ).view()
@@ -54,7 +57,7 @@ class AssetImportComponent(val ctx: AssetImportContext = AssetImportContext()) :
         var apiKey by remember { mutableStateOf(Prefs.itchApiKey) }
         TextField(apiKey, onValueChange = { apiKey = it })
         importButton {
-
+            ctx.itchImport()
         }
     }
 
@@ -67,7 +70,9 @@ class AssetImportComponent(val ctx: AssetImportContext = AssetImportContext()) :
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = {}) {
+                Button(onClick = {
+                    ctx.humbleImport(importJson)
+                }) {
                     Text("Import All")
                 }
             }

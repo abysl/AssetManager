@@ -48,7 +48,7 @@ internal class ItchTest {
             // step 5 request file link
             // step 6 request file from cdn
             val assets = itch.getAssets()
-            val test = itch.getDownloadUrls(assets.keys.first())
+            val test = itch.getDownloadUrls(assets.first())
             println(test)
         }
     }

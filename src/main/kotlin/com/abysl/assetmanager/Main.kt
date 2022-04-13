@@ -5,8 +5,10 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.abysl.assetmanager.services.DBService
+import com.abysl.assetmanager.services.DownloadService
 import com.abysl.assetmanager.services.ImageService
 import com.abysl.assetmanager.services.NavigationService
+import com.abysl.assetmanager.services.AssetImportService
 import com.abysl.assetmanager.ui.components.main.MainComponent
 import com.abysl.assetmanager.ui.util.Theme
 import org.koin.core.context.startKoin
@@ -20,7 +22,9 @@ fun main() {
     val mainModule = module {
         single { db }
         single { ImageService(cacheLocation = Prefs.IMAGE_CACHE) }
+        single { DownloadService().also { it.start() } }
         singleOf(::NavigationService)
+        singleOf(::AssetImportService)
 
     }
     startKoin {

@@ -1,5 +1,6 @@
 package com.abysl.assetmanager.db.tables
 
+import com.abysl.assetmanager.Prefs
 import com.abysl.assetmanager.model.Asset
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -8,19 +9,18 @@ import org.jetbrains.exposed.sql.ResultRow
 
 object AssetTable: IntIdTable() {
     val name = varchar("name", 256);
+    val creator = varchar("creator", 256).default("unknown")
+    val downloaded = bool("downloaded")
     val sourcePlatform = varchar("source_platform", 16)
-    val creator = varchar("creator", 256).default("Unknown")
-    val iconUrl  = varchar("iconUrl", 256)
-    val sourceUrl = varchar("sourceUrl", 256);
-    val downloads = varchar("downloads", 4096)
+    val sourceData = varchar("source_data", 8192)
 
     fun fromRow(row: ResultRow): Asset  =
         Asset(
+            id = row[id].value,
             name = row[name],
-            sourcePlatform = row[sourcePlatform],
             creator = row[creator],
-            iconUrl = row[iconUrl],
-            sourceUrl = row[sourceUrl],
-            downloads = Json.decodeFromString(row[downloads])
+            downloaded = row[downloaded],
+            sourcePlatform = Prefs.jsonFormat.decodeFromString(row[sourcePlatform]),
+            sourceData = row[sourceData]
         )
 }

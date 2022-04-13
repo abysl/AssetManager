@@ -8,7 +8,5 @@ internal class HumbleTest {
 
     @Test
     fun getProducts() {
-        val test = humble.getProducts()
-        test.forEach { println(it.name) }
     }
 }
