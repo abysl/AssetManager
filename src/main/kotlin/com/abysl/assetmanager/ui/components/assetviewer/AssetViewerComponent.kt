@@ -16,23 +16,27 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.abysl.assetmanager.model.Asset
-import com.abysl.assetmanager.model.AssetIndex
+import com.abysl.assetmanager.model.AssetIndexScore
 import com.abysl.assetmanager.ui.components.Component
+import kotlinx.coroutines.*
 import org.koin.core.component.KoinComponent
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
 class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext()) : Component(), KoinComponent {
 
     val assets = context.getAssets()
+
 
     @Preview
     @Composable
     override fun view() {
         Column() {
             searchBar()
-            if (context.searchText.collectAsState().value.isBlank()) {
+            if (context.searchText.isBlank()) {
                 assetList(assets)
             } else {
-                fileList(context.fuzzyResultState.value)
+                fileList(context.results)
             }
         }
     }
@@ -46,8 +50,11 @@ class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext(
             horizontalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             TextField(
-                context.searchText.collectAsState().value,
-                onValueChange = { context.searchText.value = it },
+                context.searchText,
+                onValueChange = {
+                    context.searchText = it
+                    context.updateIndexScores()
+                },
                 modifier = Modifier.weight(1f)
             )
             IconButton(
@@ -115,7 +122,7 @@ class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext(
     }
 
     @Composable
-    fun fileList(assetIndex: Map<Int, AssetIndex>) {
+    fun fileList(assetIndex: List<AssetIndexScore>) {
         Box() {
             val state = rememberLazyListState()
             LazyColumn(
@@ -125,7 +132,7 @@ class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext(
             ) {
                 for (indice in assetIndex) {
                     item {
-                        Text("${indice.key} ${indice.value.file.path}")
+                        Text("${indice.score} ${indice.assetIndex.file.path}")
                     }
                 }
             }
