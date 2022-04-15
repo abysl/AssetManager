@@ -8,7 +8,6 @@ import com.abysl.itch.Itch
 import com.abysl.itch.model.ItchGame
 import kotlinx.coroutines.*
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -55,13 +54,31 @@ class AssetImportService() {
     }
 
     fun importHumbleAssets(assets: List<HumbleProduct>) {
+        val existingHumbleAssets = transaction {
+            AssetTable.select {
+                AssetTable.sourcePlatform eq Prefs.jsonFormat.encodeToString(SourcePlatform.HUMBLE)
+            }.map(AssetTable::fromRow)
+        }.map { asset -> (asset.sourceObject as HumbleProduct).name to asset.id }.toMap()
         transaction {
-            AssetTable.batchInsert(assets) {
-                this[AssetTable.name] = it.name
-                this[AssetTable.creator] = it.creator
-                this[AssetTable.downloaded] = false
-                this[AssetTable.sourcePlatform] = Prefs.jsonFormat.encodeToString(SourcePlatform.HUMBLE)
-                this[AssetTable.sourceData] = Prefs.jsonFormat.encodeToString(it)
+            for (subproduct in assets) {
+                // if asset is pre-existing, update it
+                if (subproduct.name in existingHumbleAssets.keys) {
+                    AssetTable.update({ AssetTable.id eq existingHumbleAssets[subproduct.name] }) {
+                        it[name] = subproduct.name
+                        it[creator] = subproduct.creator
+                        it[downloaded] = false
+                        it[sourcePlatform] = Prefs.jsonFormat.encodeToString(SourcePlatform.HUMBLE)
+                        it[sourceData] = Prefs.jsonFormat.encodeToString(subproduct)
+                    }
+                } else {
+                    AssetTable.insert {
+                        it[name] = subproduct.name
+                        it[creator] = subproduct.creator
+                        it[downloaded] = false
+                        it[sourcePlatform] = Prefs.jsonFormat.encodeToString(SourcePlatform.HUMBLE)
+                        it[sourceData] = Prefs.jsonFormat.encodeToString(subproduct)
+                    }
+                }
             }
         }
     }

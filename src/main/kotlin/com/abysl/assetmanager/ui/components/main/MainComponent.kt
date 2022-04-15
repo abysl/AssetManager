@@ -4,6 +4,7 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.BottomAppBar
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TopAppBar
@@ -13,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.abysl.assetmanager.Prefs
 import com.abysl.assetmanager.ui.components.Component
 import com.abysl.assetmanager.ui.components.assetviewer.AssetViewerComponent
+import com.abysl.assetmanager.ui.components.shared.infobar.InfoBar
 import com.abysl.assetmanager.ui.components.shared.sidebar.SideBarComponent
 import com.abysl.assetmanager.ui.components.shared.topbar.TopBarComponent
 import com.abysl.assetmanager.ui.util.Theme
@@ -21,6 +23,7 @@ import org.koin.core.component.KoinComponent
 class MainComponent(val context: MainContext = MainContext()) : Component(), KoinComponent {
 
     private val topBar = TopBarComponent()
+    private val infoBar = InfoBar()
     private val sideBar = SideBarComponent()
 
     init {
@@ -30,15 +33,16 @@ class MainComponent(val context: MainContext = MainContext()) : Component(), Koi
     @Preview
     @Composable
     override fun view() {
-            Scaffold(
-                topBar = { TopAppBar { topBar.view() } },
-            ) {
-                Row {
-                    if (topBar.context.menuPressed.value) {
-                        sideBar.view()
-                    }
-                    context.navService.currentView()
+        Scaffold(
+            topBar = { TopAppBar { topBar.view() } },
+            bottomBar = { BottomAppBar { infoBar.view() } },
+        ) { innerPadding ->
+            Row(modifier = Modifier.padding(innerPadding)) {
+                if (topBar.context.menuPressed.value) {
+                    sideBar.view()
                 }
+                context.navService.currentView()
             }
         }
+    }
 }

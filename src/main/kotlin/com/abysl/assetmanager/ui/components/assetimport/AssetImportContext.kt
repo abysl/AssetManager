@@ -15,7 +15,6 @@ import org.koin.core.component.inject
 class AssetImportContext: KoinComponent {
     var selectedImportType by mutableStateOf(SourcePlatform.values().first())
     val importService by inject<AssetImportService>()
-    val downloadService by inject<DownloadService>()
 
     fun itchImport(){
         try{

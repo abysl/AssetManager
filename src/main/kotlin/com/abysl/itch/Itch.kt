@@ -22,27 +22,7 @@ import java.io.File
 import java.util.stream.Collectors
 
 class Itch(val config: ItchClientConfig) {
-    constructor(apiKey: String): this(ItchClientConfig(apiKey))
-
-    val jsonFormat = Json {
-        prettyPrint = true
-        isLenient = true
-        ignoreUnknownKeys = true
-    }
-
-    val client = HttpClient(CIO) {
-        followRedirects = false
-        expectSuccess = false
-        install(ContentNegotiation) {
-            json(jsonFormat)
-        }
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.NONE
-        }
-        install(HttpCookies)
-        install(HttpSend)
-    }
+    constructor(apiKey: String) : this(ItchClientConfig(apiKey))
 
     val base = config.apiUrl()
 
@@ -126,5 +106,27 @@ class Itch(val config: ItchClientConfig) {
         if (downloadLocation.exists() && !overwrite) return
         downloadLocation.parentFile?.mkdirs()
         downloadLocation.writeBytes(fileBytes)
+    }
+
+    companion object {
+        private val jsonFormat = Json {
+            prettyPrint = true
+            isLenient = true
+            ignoreUnknownKeys = true
+        }
+
+        private val client = HttpClient(CIO) {
+            followRedirects = false
+            expectSuccess = false
+            install(ContentNegotiation) {
+                json(jsonFormat)
+            }
+            install(Logging) {
+                logger = Logger.DEFAULT
+                level = LogLevel.NONE
+            }
+            install(HttpCookies)
+            install(HttpSend)
+        }
     }
 }

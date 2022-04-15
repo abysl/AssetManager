@@ -52,5 +52,6 @@ class MigrationService {
         migrations[0] = InitialMigration()
         migrations[1] = AssetTableMigration()
         migrations[2] = PreferencesMigration()
+        migrations[3] = AssetIndexMigration()
     }
 }

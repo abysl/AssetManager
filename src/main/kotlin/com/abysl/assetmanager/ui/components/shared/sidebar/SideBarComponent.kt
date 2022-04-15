@@ -27,10 +27,11 @@ class SideBarComponent: Component(), KoinComponent {
     override fun view() {
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.25f).fillMaxHeight()
+                .width(250.dp)
+                .fillMaxHeight()
                 .background(MaterialTheme.colors.surface)
                 .padding(15.dp),
-            verticalArrangement = Arrangement.spacedBy(15.dp)
+            verticalArrangement = Arrangement.spacedBy(15.dp),
         ) {
             NavigationButton("Assets") {
                 navigationService.navigate(AssetViewerComponent())

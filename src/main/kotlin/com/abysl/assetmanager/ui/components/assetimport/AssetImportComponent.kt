@@ -18,11 +18,9 @@ class AssetImportComponent(val ctx: AssetImportContext = AssetImportContext()) :
 
     @Composable
     override fun view() {
-        val filesLeft by ctx.downloadService.filesLeft.collectAsState(0)
         Column(verticalArrangement = Arrangement.spacedBy(15.dp), modifier = Modifier.padding(15.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(15.dp), verticalAlignment = Alignment.CenterVertically) {
                 importSelector()
-                Text("$filesLeft")
                 when (ctx.selectedImportType) {
                     SourcePlatform.HUMBLE -> LinkText(
                         "Humble Json Data - Click Here For Tutorial",
@@ -57,6 +55,7 @@ class AssetImportComponent(val ctx: AssetImportContext = AssetImportContext()) :
         var apiKey by remember { mutableStateOf(Prefs.itchApiKey) }
         TextField(apiKey, onValueChange = { apiKey = it })
         importButton {
+            Prefs.itchApiKey = apiKey
             ctx.itchImport()
         }
     }

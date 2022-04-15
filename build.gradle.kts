@@ -43,7 +43,9 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("com.squareup.okio:okio:$okioVersion")
     implementation("io.github.microutils:kotlin-logging:2.1.21")
-
+    implementation("org.jetbrains.compose.material:material-icons-extended-desktop:1.1.1")
+    implementation("net.lingala.zip4j:zip4j:2.10.0")
+    implementation("me.xdrop:fuzzywuzzy:1.4.0")
 }
 
 tasks.test {
