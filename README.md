@@ -2,6 +2,7 @@
 
 Abysl Asset Manager is an easy to use library management tool to index and search game assets.
 
+![](wiki/images/screenshot.png)
 
 ## Features
 
