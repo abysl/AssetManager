@@ -190,7 +190,7 @@ class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext(
                 }
                 else -> {}
             }
-            Text("${indice.assetIndex.file.name} ${indice.score}% match")
+            Text("${indice.assetIndex.file.path} ${indice.score}% match")
         }
     }
 
