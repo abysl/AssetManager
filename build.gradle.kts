@@ -46,6 +46,7 @@ dependencies {
     implementation("org.jetbrains.compose.material:material-icons-extended-desktop:1.1.1")
     implementation("net.lingala.zip4j:zip4j:2.10.0")
     implementation("me.xdrop:fuzzywuzzy:1.4.0")
+    implementation("com.soywiz.korlibs.korau:korau:2.7.0")
 }
 
 tasks.test {

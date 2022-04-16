@@ -20,20 +20,6 @@ fun String.asResourceStream(): InputStream =
 
 class ResourceLoadException(resource: String) : Exception("Failed to load resource: $resource")
 
-fun loadLocalImage(file: File): ImageBitmap {
-    if (!file.exists()) return defaultImage
-    val imageBytes = file.readBytes()
-    return try {
-        Image.makeFromEncoded(imageBytes).toComposeImageBitmap()
-    }catch (e: Exception){
-        defaultImage
-    }
-}
-
-val defaultImage by lazy {
-    Image.makeFromEncoded("default.png".asResourceStream().readBytes()).toComposeImageBitmap()
-}
-
 
 val fileNameRegex = """(?:.+\/)([^#?&]+)""".toRegex()
 fun parseFileNameFromUrl(url: String): String {

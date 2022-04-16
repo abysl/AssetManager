@@ -9,6 +9,7 @@ import com.abysl.assetmanager.services.DownloadService
 import com.abysl.assetmanager.services.ImageService
 import com.abysl.assetmanager.services.NavigationService
 import com.abysl.assetmanager.services.AssetImportService
+import com.abysl.assetmanager.services.AudioService
 import com.abysl.assetmanager.ui.components.main.MainComponent
 import com.abysl.assetmanager.ui.util.Theme
 import io.ktor.client.*
@@ -31,6 +32,7 @@ fun main() {
         single { KotlinLogging.logger {} }
         singleOf(::NavigationService)
         singleOf(::AssetImportService)
+        singleOf(::AudioService)
 
     }
     startKoin {

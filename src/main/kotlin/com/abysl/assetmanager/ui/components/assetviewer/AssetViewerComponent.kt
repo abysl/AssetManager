@@ -8,25 +8,24 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.abysl.assetmanager.model.Asset
 import com.abysl.assetmanager.model.AssetIndexScore
+import com.abysl.assetmanager.services.ImageService
 import com.abysl.assetmanager.ui.components.Component
 import kotlinx.coroutines.*
 import org.koin.core.component.KoinComponent
-import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
+import org.koin.core.component.inject
 
-class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext()) : Component(), KoinComponent {
+class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext()) : Component() {
 
     val assets = context.getAssets()
-
 
     @Preview
     @Composable
@@ -132,7 +131,10 @@ class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext(
             ) {
                 for (indice in assetIndex) {
                     item {
-                        Text("${indice.score} ${indice.assetIndex.file.path}")
+                        card {
+                            assetCard(indice.assetIndex.asset)
+                            fileCard(indice)
+                        }
                     }
                 }
             }
@@ -146,22 +148,50 @@ class AssetViewerComponent(val context: AssetViewerContext = AssetViewerContext(
     }
 
     @Composable
-    fun assetCard(asset: Asset) {
+    fun card(content: @Composable () -> Unit) {
         Row(
-            modifier = Modifier.padding(10.dp)
+            modifier = Modifier.padding(15.dp),
+            horizontalArrangement = Arrangement.spacedBy(15.dp)
         ) {
-            Image(
-                painter = BitmapPainter(asset.getIcon()),
-                contentDescription = asset.name,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxSize(0.1f),
-            )
+            content()
+        }
+    }
+
+
+    @Composable
+    fun assetCard(asset: Asset) {
+        card {
+            context.imageService.image(asset.icon, asset.name)
             Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(15.dp),
             ) {
                 Text(asset.name)
                 Text(asset.creator)
             }
         }
     }
+
+    @Composable
+    fun fileCard(indice: AssetIndexScore) {
+        card {
+            when (indice.assetIndex.file.extension) {
+                in listOf("png", "jpg") ->
+                    context.imageService.image(
+                        indice.assetIndex.file,
+                        indice.assetIndex.file.name
+                    )
+                in listOf("wav", "ogg", "mp3") -> {
+                    IconButton(onClick = { context.audioService.toggleAudio(indice.assetIndex.file) }) {
+                        Icon(
+                            Icons.Filled.GraphicEq,
+                            contentDescription = "Menu"
+                        )
+                    }
+                }
+                else -> {}
+            }
+            Text("${indice.assetIndex.file.name} ${indice.score}% match")
+        }
+    }
+
 }

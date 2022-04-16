@@ -9,16 +9,23 @@ import com.abysl.assetmanager.db.tables.AssetTable
 import com.abysl.assetmanager.model.Asset
 import com.abysl.assetmanager.model.AssetIndex
 import com.abysl.assetmanager.model.AssetIndexScore
+import com.abysl.assetmanager.services.AudioService
+import com.abysl.assetmanager.services.ImageService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
-class AssetViewerContext {
+class AssetViewerContext: KoinComponent {
+
+    val imageService by inject<ImageService>()
+    val audioService by inject<AudioService>()
 
     var assetIndex by mutableStateOf(emptyList<AssetIndex>())
     var searchText by mutableStateOf("")

@@ -5,7 +5,6 @@ import com.abysl.assetmanager.Prefs
 import com.abysl.assetmanager.db.tables.AssetTable
 import com.abysl.assetmanager.db.tables.TagTable
 import com.abysl.assetmanager.ui.components.assetimport.SourcePlatform
-import com.abysl.assetmanager.util.loadLocalImage
 import com.abysl.humble.model.HumbleProduct
 import com.abysl.itch.model.ItchGame
 import kotlinx.serialization.Transient
@@ -39,11 +38,8 @@ data class Asset(
     @Transient
     val dir = Prefs.ASSET_PATH.resolve("$id").also { it.mkdirs() }
 
-    fun getIcon(): ImageBitmap {
-        val path = dir.resolve("icon.png")
-        val image = loadLocalImage(path)
-        return image
-    }
+    @Transient
+    val icon = dir.resolve("icon.png")
 
     fun getTags(): List<Tag> {
         val asset = id
