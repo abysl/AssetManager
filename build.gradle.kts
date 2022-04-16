@@ -61,6 +61,7 @@ compose.desktop {
     application {
         mainClass = "com.abysl.assetmanager.MainKt"
         nativeDistributions {
+            modules("java.instrument", "java.management", "java.naming", "java.sql", "jdk.unsupported")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "AssetManager"
             packageVersion = "1.0.0"
