@@ -26,3 +26,9 @@ Abysl Asset Manager is an easy to use library management tool to index and searc
 ## Installation
 
 Simply download one of the binaries from the [releases page](https://github.com/abysl/AssetManager/releases)
+
+## Build Instructions
+
+1) Clone the repository
+2) Install Java 17 JDK https://adoptium.net/
+3) In the repositorie's root directory run "gradlew.bat run" if on windows or "./gradlew run" if on mac or linux.
