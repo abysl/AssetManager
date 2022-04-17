@@ -87,6 +87,7 @@ class DownloadService(val maxJobs: Int = 5) : KoinComponent {
         val downloadSuccess: Boolean = when (asset.sourceObject) {
             is ItchGame -> downloadItchAsset(asset.dir, asset.sourceObject)
             is HumbleProduct -> downloadHumbleAsset(asset.dir, asset.sourceObject)
+            is File -> copyLocalAsset(asset.dir, asset.sourceObject)
             else -> true
         }
         indexAsset(asset)
@@ -140,6 +141,10 @@ class DownloadService(val maxJobs: Int = 5) : KoinComponent {
             if (!downloadFile(saveFile, download.web, overwrite = true)) success = false
         }
         return success
+    }
+
+    fun copyLocalAsset(saveDir: File, assetSource: File): Boolean {
+        return assetSource.copyRecursively(target = saveDir, overwrite = true)
     }
 
     suspend fun downloadFile(

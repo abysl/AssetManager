@@ -31,6 +31,7 @@ data class Asset(
         when (sourcePlatform) {
             SourcePlatform.HUMBLE -> Prefs.jsonFormat.decodeFromString<HumbleProduct>(sourceData)
             SourcePlatform.ITCH -> Prefs.jsonFormat.decodeFromString<ItchGame>(sourceData)
+            SourcePlatform.LOCAL -> File(sourceData)
             else -> null
         }
 

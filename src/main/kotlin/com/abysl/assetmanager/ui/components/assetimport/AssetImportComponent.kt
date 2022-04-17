@@ -12,7 +12,10 @@ import com.abysl.assetmanager.Prefs
 import com.abysl.assetmanager.ui.components.Component
 import com.abysl.assetmanager.ui.components.shared.dropdown.DropDownComponent
 import com.abysl.assetmanager.ui.components.shared.util.AbyslComponents.LinkText
+import com.abysl.assetmanager.util.folderDialog
 import org.koin.core.component.KoinComponent
+import java.io.File
+import java.util.Arrays
 
 class AssetImportComponent(val ctx: AssetImportContext = AssetImportContext()) : Component(), KoinComponent {
 
@@ -80,7 +83,47 @@ class AssetImportComponent(val ctx: AssetImportContext = AssetImportContext()) :
 
     @Composable
     fun localImportForm() {
-        Text("Not implemented yet")
+        var assetPath by remember { mutableStateOf("") }
+        var assetName by remember { mutableStateOf("") }
+        var creator by remember { mutableStateOf("") }
+
+        var fileChooserOpen by remember { mutableStateOf(false) }
+        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(15.dp), verticalAlignment = Alignment.CenterVertically) {
+                TextField(value = assetPath, onValueChange = { assetPath = it }, modifier = Modifier.weight(1f))
+                Button(onClick = {
+                    fileChooserOpen = true
+                }) {
+                    Text("Choose File")
+                }
+            }
+            if (fileChooserOpen) {
+                folderDialog {
+                    fileChooserOpen = false
+                    it?.let { assetPath = it.path }
+                    it?.let { assetName = it.name }
+                }
+            }
+            val assetDir = File(assetPath)
+            if (assetDir.exists()) {
+                formField("Asset Name", assetName) { assetName = it }
+                formField("Creator", creator) { creator = it }
+                importButton {
+                    ctx.importService.importLocalAsset(assetName, creator, assetDir)
+                }
+            }
+        }
+
+    }
+
+    @Composable
+    fun formField(title: String, initialValue: String, onValueChange: (String) -> Unit) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(title)
+            Row {
+                TextField(initialValue, onValueChange, modifier = Modifier.weight(1f))
+            }
+        }
     }
 
     @Composable

@@ -2,17 +2,16 @@ package com.abysl.assetmanager.services
 
 import com.abysl.assetmanager.Prefs
 import com.abysl.assetmanager.db.tables.AssetTable
+import com.abysl.assetmanager.model.Asset
 import com.abysl.assetmanager.ui.components.assetimport.SourcePlatform
 import com.abysl.humble.model.HumbleProduct
 import com.abysl.itch.Itch
 import com.abysl.itch.model.ItchGame
 import kotlinx.coroutines.*
 import kotlinx.serialization.encodeToString
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
+import java.io.File
 
 class AssetImportService() {
     fun importItchAssets() {
@@ -78,6 +77,33 @@ class AssetImportService() {
                         it[sourcePlatform] = Prefs.jsonFormat.encodeToString(SourcePlatform.HUMBLE)
                         it[sourceData] = Prefs.jsonFormat.encodeToString(subproduct)
                     }
+                }
+            }
+        }
+    }
+
+    fun importLocalAsset(name: String, creator: String, file: File) {
+        val existingAsset = transaction {
+            AssetTable
+                .select { (AssetTable.name eq name) and (AssetTable.creator eq creator) }
+                .map(AssetTable::fromRow)
+        }.firstOrNull()
+        transaction {
+            if (existingAsset != null) {
+                AssetTable.update({ AssetTable.id eq existingAsset.id }) {
+                    it[AssetTable.name] = name
+                    it[AssetTable.creator] = creator
+                    it[downloaded] = false
+                    it[sourcePlatform] = Prefs.jsonFormat.encodeToString(SourcePlatform.LOCAL)
+                    it[sourceData] = file.path
+                }
+            } else {
+                AssetTable.insert {
+                    it[AssetTable.name] = name
+                    it[AssetTable.creator] = creator
+                    it[downloaded] = false
+                    it[sourcePlatform] = Prefs.jsonFormat.encodeToString(SourcePlatform.LOCAL)
+                    it[sourceData] = file.path
                 }
             }
         }
